@@ -1,0 +1,11 @@
+{
+  "name": "Unity.com.m3taphysics.Arch.SystemGroups.Visualiser.Editor.Tests",
+  "references": [
+    "Unity.com.m3taphysics.Arch.SystemGroups.Visualiser"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": []
+}

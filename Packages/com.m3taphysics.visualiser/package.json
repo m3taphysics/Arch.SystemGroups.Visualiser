@@ -1,0 +1,27 @@
+{
+  "name": "com.m3taphysics.arch.systemgroups.visualiser",
+  "displayName": "m3taphysics - Visualiser",
+  "version": "0.0.0",
+  "unity": "2022.3",
+  "description": "Visualises Arch.SystemGroups system dependencies",
+  "keywords": [
+    "unity",
+	"unity3d",
+	"upm",
+    "m3taphysics",
+    "utility"
+  ],
+  "homepage": "https://github.com/m3taphysics/Arch.SystemGroups.Visualiser.git",
+  "bugs": {
+    "url": "https://github.com/m3taphysics/Arch.SystemGroups.Visualiser/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/m3taphysics/Arch.SystemGroups.Visualiser.git"
+  },
+  "license": "MIT",
+  "author": "m3taphysics (https://github.com/m3taphysics)",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
