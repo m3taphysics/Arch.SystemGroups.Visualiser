@@ -7,4 +7,4 @@
 The project provides a package to allow visualisation of the dependency tree of [Arch.SystemGroups](https://github.com/mikhail-dcl/Arch.SystemGroups/). For larger complex projects it is difficult to understand the execution order when the number of systems becomes increasingly large.
 
 ## Installation
-Package can be added as a dependency: https://github.com/m3taphysics/Arch.SystemGroups.Visualiser.git?path=/Packages/Arch.Systemgroups.Visualiser
+Package can be added as a dependency: ```https://github.com/m3taphysics/Arch.SystemGroups.Visualiser.git?path=/Packages/Arch.Systemgroups.Visualiser```
