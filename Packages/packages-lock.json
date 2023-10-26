@@ -1,10 +1,17 @@
 {
   "dependencies": {
-    "com.m3taphysics.arch.systemgroups.visualiser": {
+    "arch.systemgroups.visualiser": {
       "version": "file:com.m3taphysics.visualiser",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
+    },
+    "com.arch.systemgroups": {
+      "version": "https://github.com/mikhail-dcl/Arch.SystemGroups.git?path=/Arch.SystemGroups",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "1eaeb7d1627c5a0a1869e8a787fa92a81072ae5d"
     },
     "com.unity.collab-proxy": {
       "version": "2.1.0",
