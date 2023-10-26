@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "arch.systemgroups.visualiser": {
-      "version": "file:com.m3taphysics.visualiser",
+      "version": "file:arch.systemgroups.visualiser",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
@@ -11,7 +11,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "1eaeb7d1627c5a0a1869e8a787fa92a81072ae5d"
+      "hash": "195bdd35580b4edec0ddba51c566c9021cc5e68b"
     },
     "com.unity.collab-proxy": {
       "version": "2.1.0",
