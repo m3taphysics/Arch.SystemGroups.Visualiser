@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="../Styles/SystemStyle.uss"/>
+    <ui:VisualElement class="system-template">
+        <ui:Label name="system-label" class="system-label" text="System N/A"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,8 @@
+﻿.system-template {
+    font-size: 12px;
+    text-align: center;
+    padding: 3px;
+    margin: 3px;
+    background-color: #ffffcc; /* Light yellow background for systems */
+    border: 1px solid #000000;
+}

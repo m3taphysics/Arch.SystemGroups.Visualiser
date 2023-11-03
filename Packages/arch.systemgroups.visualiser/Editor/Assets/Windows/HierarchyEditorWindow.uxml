@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="Group" src="project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Controls/GroupTemplate.uxml?fileID=9197481963319205126&amp;guid=dba1351547414fdf901e26250811a04b&amp;type=3#GroupTemplate" />
+    <ui:Template name="System" src="project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Controls/SystemTemplate.uxml?fileID=9197481963319205126&amp;guid=f153c46a05984406a5f56c1478236b2d&amp;type=3#SystemTemplate" />
+    <ui:ScrollView>
+        <ui:Button text="Refresh" name="refresh-button"/>
+        <ui:VisualElement name="hierarchy-root" style="flex-direction: col;">
+            <!-- Elements created here -->
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>
