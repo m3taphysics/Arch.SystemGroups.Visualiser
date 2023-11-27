@@ -1,8 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Styles/GroupStyle.uss?fileID=7433441132597879392&amp;guid=b9f7f623d1134f8abe78f5c6bec42c21&amp;type=3#GroupStyle" />
     <ui:VisualElement class="group-template">
-        <ui:Foldout text="title" class="group-foldout" name="group-foldout">
-            <ui:VisualElement name="group-container" content-container="anyValue" style="flex-direction: row;" />
+        <ui:Foldout text="group" class="group-foldout" name="group-foldout">
+            <ui:VisualElement name="group-container" content-container="anyValue" style="flex-direction: row;"/>
         </ui:Foldout>
     </ui:VisualElement>
 </ui:UXML>

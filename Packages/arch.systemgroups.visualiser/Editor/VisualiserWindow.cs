@@ -11,7 +11,6 @@ namespace Editor
         private VisualTreeAsset _groupTemplate;
         private VisualTreeAsset _systemTemplate;
         private VisualElement _hierarchyRoot;
-        private bool _isInitialized = false;
         
         [MenuItem("Arch/View/Visualiser")]
         public static void ShowWindow()
@@ -23,9 +22,14 @@ namespace Editor
         private void OnPlayModeStateChanged(PlayModeStateChange stateChange)
         {
             if (stateChange.HasFlag(PlayModeStateChange.EnteredPlayMode))
+            {
                 PopulateHierarchy(SystemGroupSnapshot.Instance.Capture(), _hierarchyRoot);
-            else if(stateChange.HasFlag(PlayModeStateChange.ExitingEditMode))
+            }
+                
+            else if (stateChange.HasFlag(PlayModeStateChange.ExitingEditMode))
+            {
                 ClearHierarchy();
+            }
         }
 
         private void OnEnable()
@@ -37,13 +41,10 @@ namespace Editor
             rootVisualElement.Add(root);
             
             _hierarchyRoot = rootVisualElement.Q<VisualElement>("hierarchy-root");
-            
+                
             _groupTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{packagePath}/Controls/GroupTemplate.uxml");
             _systemTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{packagePath}/Controls/SystemTemplate.uxml");
-
-            var refreshButton = rootVisualElement.Q<Button>("refresh-button");
-            refreshButton.clicked += OnRefreshButtonClicked;
-
+            
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             
             if (Application.isPlaying)
@@ -54,10 +55,7 @@ namespace Editor
         }
 
         private void OnDisable()
-        {
-            var refreshButton = rootVisualElement.Q<Button>("refresh-button");
-            refreshButton.clicked -= OnRefreshButtonClicked;
-            
+        { 
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             
             ClearHierarchy();
@@ -103,7 +101,6 @@ namespace Editor
                 else
                 {
                     var systemTemplateInstance = _systemTemplate.CloneTree();
-                    systemTemplateInstance.Q<Label>("system-label").text = descriptor.Name;
                     parentElement.Add(systemTemplateInstance);
                 }
             }

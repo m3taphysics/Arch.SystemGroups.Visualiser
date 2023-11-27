@@ -4,6 +4,6 @@
          noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="../Styles/SystemStyle.uss"/>
     <ui:VisualElement class="system-template">
-        <ui:Label name="system-label" class="system-label" text="System N/A"/>
+        <ui:Label name="system-label" class="system-label" text="system"/>
     </ui:VisualElement>
 </ui:UXML>
