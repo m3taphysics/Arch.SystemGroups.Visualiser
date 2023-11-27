@@ -5,6 +5,7 @@ using Arch.SystemGroups;
 using Arch.SystemGroups.DefaultSystemGroups;
 using Arch.SystemGroups.Descriptors;
 using Editor;
+using Groups;
 using UnityEngine;
 
 namespace Systems
@@ -29,7 +30,15 @@ namespace Systems
             
             PostPhysicsSystemGroupSystem.InjectToWorld(ref worldBuilder);
             PhysicsSystemGroupSystem.InjectToWorld(ref worldBuilder);
+
+            SystemInCustomGroupSystem.InjectToWorld(ref worldBuilder);
+            SystemInCustomGroupSystem1.InjectToWorld(ref worldBuilder);
+            SystemInCustomGroupSystem2.InjectToWorld(ref worldBuilder);
+            
+            
+            
             _world = worldBuilder.Finish();
+            
             SystemGroupSnapshot.Instance.Initialize(_world);
         }
     }

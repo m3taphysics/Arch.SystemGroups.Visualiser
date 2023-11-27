@@ -1,0 +1,50 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="group-template" src="project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Controls/GroupTemplate.uxml?fileID=9197481963319205126&amp;guid=dba1351547414fdf901e26250811a04b&amp;type=3#GroupTemplate" />
+    <ui:Template name="system-template" src="project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Controls/SystemTemplate.uxml?fileID=9197481963319205126&amp;guid=f153c46a05984406a5f56c1478236b2d&amp;type=3#SystemTemplate" />
+    <Style src="project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Styles/WindowStyle.uss?fileID=7433441132597879392&amp;guid=1143b33193b84173a1efdd9209786766&amp;type=3#WindowStyle" />
+    <ui:ScrollView>
+        <ui:VisualElement name="hierarchy-root" style="flex-direction: col;">
+            <ui:Instance template="group-template" name="group-template-instance">
+                <ui:Instance template="system-template" name="system-template-instance" tooltip="Test" />
+                <ui:Instance template="group-template" name="group-template-instance">
+                    <ui:Instance template="system-template" name="system-template-instance" tooltip="Test" />
+                    <ui:Instance template="system-template" name="system-template-instance" />
+                    <ui:Instance template="system-template" name="system-template-instance" />
+                </ui:Instance>
+                <ui:Instance template="group-template" name="group-template-instance">
+                    <ui:Instance template="group-template" name="group-template-instance">
+                        <ui:Instance template="system-template" name="system-template-instance" />
+                        <ui:Instance template="system-template" name="system-template-instance" />
+                        <ui:Instance template="system-template" name="system-template-instance" />
+                    </ui:Instance>
+                    <ui:Instance template="system-template" name="system-template-instance" />
+                    <ui:Instance template="system-template" name="system-template-instance" />
+                    <ui:Instance template="system-template" name="system-template-instance" />
+                    <ui:Instance template="group-template" name="group-template-instance">
+                        <ui:Instance template="system-template" name="system-template-instance" />
+                        <ui:Instance template="system-template" name="system-template-instance" />
+                        <ui:Instance template="system-template" name="system-template-instance" />
+                    </ui:Instance>
+                </ui:Instance>
+            </ui:Instance>
+            <ui:Instance template="group-template" name="group-template-instance">
+                <ui:Instance template="system-template" name="system-template-instance" />
+            </ui:Instance>
+            <ui:Instance template="group-template" name="group-template-instance">
+                <ui:Instance template="system-template" name="system-template-instance" />
+                <ui:Instance template="system-template" name="system-template-instance" />
+            </ui:Instance>
+            <ui:Instance template="group-template" name="group-template-instance">
+                <ui:Instance template="system-template" name="system-template-instance" />
+                <ui:Instance template="system-template" name="system-template-instance" />
+                <ui:Instance template="system-template" name="system-template-instance" />
+            </ui:Instance>
+            <ui:Instance template="group-template" name="group-template-instance">
+                <ui:Instance template="system-template" name="system-template-instance" />
+                <ui:Instance template="system-template" name="system-template-instance" />
+                <ui:Instance template="system-template" name="system-template-instance" />
+                <ui:Instance template="system-template" name="system-template-instance" />
+            </ui:Instance>
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

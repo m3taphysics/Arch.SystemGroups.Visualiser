@@ -1,0 +1,9 @@
+﻿.maximised {
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    font-size: 72px;
+    font-weight: bolder;
+    color: dimgray;
+    -unity-text-align: middle-center;
+}
