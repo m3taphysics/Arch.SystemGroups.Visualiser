@@ -1,17 +1,20 @@
 using System;
-using UnityEngine;
-using UnityEditor;
-using UnityEngine.UIElements;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
 
-namespace Editor
+namespace SystemGroups.Visualiser.Editor
 {
     public class VisualiserWindow : EditorWindow
     {
         private VisualTreeAsset _groupTemplate;
         private VisualTreeAsset _systemTemplate;
         private VisualElement _hierarchyRoot;
-        
+        private DropdownField _worldDropdownMenu;
+        private Button _enterPlayMode;
+        private ScrollView _hierarchyRootScroll;
+
         [MenuItem("Arch/View/Visualiser")]
         public static void ShowWindow()
         {
@@ -19,19 +22,58 @@ namespace Editor
             window.titleContent = new GUIContent("Visualiser");
         }
 
+        public void OnDestroy()
+        {
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+
+        private void ShowAndPopulateHierarchy()
+        {
+            _worldDropdownMenu.visible = true;
+            _hierarchyRootScroll.visible = true;
+            _enterPlayMode.visible = false;
+            
+            _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
+            _worldDropdownMenu.RegisterValueChangedCallback(OnSystemGroupWorldValueChanged);
+            SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged += OnSystemGroupWorldChanged;
+            
+            OnSystemGroupWorldChanged();
+        }
+
+
+        private void HideAndClearHierarchy()
+        {
+            _worldDropdownMenu.visible = false;
+            _hierarchyRootScroll.visible = false;
+            _enterPlayMode.visible = true;
+
+            _enterPlayMode.clicked += EditorApplication.EnterPlaymode;
+            _worldDropdownMenu.UnregisterValueChangedCallback(OnSystemGroupWorldValueChanged);
+            SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged -= OnSystemGroupWorldChanged;
+            
+            ClearHierarchy();
+        }
+
+        /// <summary>
+        /// Invoked when the play mode state changes
+        /// </summary>
+        /// <param name="stateChange"></param>
         private void OnPlayModeStateChanged(PlayModeStateChange stateChange)
         {
-            if (stateChange.HasFlag(PlayModeStateChange.EnteredPlayMode))
+            if (stateChange == PlayModeStateChange.EnteredPlayMode)
             {
-                PopulateHierarchy(SystemGroupSnapshot.Instance.Capture(), _hierarchyRoot);
+                ShowAndPopulateHierarchy();
             }
                 
-            else if (stateChange.HasFlag(PlayModeStateChange.ExitingEditMode))
+            else if (stateChange == PlayModeStateChange.ExitingPlayMode)
             {
-                ClearHierarchy();
+                HideAndClearHierarchy();
             }
         }
 
+        /// <summary>
+        /// Invoked when the window is enabled
+        /// </summary>
         private void OnEnable()
         {
             var packagePath = "Packages/arch.systemgroups.visualiser/Editor/Assets";
@@ -41,7 +83,10 @@ namespace Editor
             rootVisualElement.Add(root);
             
             _hierarchyRoot = rootVisualElement.Q<VisualElement>("hierarchy-root");
-                
+            _hierarchyRootScroll = rootVisualElement.Q<ScrollView>("hierarchy-scroll-root");
+            _worldDropdownMenu = rootVisualElement.Q<DropdownField>("world-dropdown-menu");
+            _enterPlayMode = rootVisualElement.Q<Button>("enter-play-mode");
+            
             _groupTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{packagePath}/Controls/GroupTemplate.uxml");
             _systemTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{packagePath}/Controls/SystemTemplate.uxml");
             
@@ -49,72 +94,81 @@ namespace Editor
             
             if (Application.isPlaying)
             {
-                // Populate the hierarchy based on your data
-                BeginPopulateHierarchy(SystemGroupSnapshot.Instance.Capture(), _hierarchyRoot);   
+                ShowAndPopulateHierarchy();
+            }
+            else
+            {
+                HideAndClearHierarchy();
             }
         }
 
+        /// <summary>
+        /// Invoked when the window is disabled
+        /// </summary>
         private void OnDisable()
         { 
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            
-            ClearHierarchy();
+            HideAndClearHierarchy();
         }
 
         /// <summary>
-        /// Repopulate the hierarchy
+        /// Invoked when the dropdown menu value changes
         /// </summary>
-        private void OnRefreshButtonClicked()
+        /// <param name="evt"></param>
+        private void OnSystemGroupWorldValueChanged(ChangeEvent<string> evt)
         {
-            BeginPopulateHierarchy(SystemGroupSnapshot.Instance.Capture(), _hierarchyRoot);
+            PopulateHierarchy();
         }
 
         /// <summary>
-        /// Populate the hierarchy based on the groups and systems
+        /// Populate the dropdown menu with the current worlds
         /// </summary>
-        /// <param name="group"></param>
-        /// <param name="parentElement"></param>
-        private void PopulateHierarchy(IReadOnlyList<Descriptor> group, VisualElement parentElement)
+        private void OnSystemGroupWorldChanged()
         {
-            if (group is null)
-            {
-                Debug.LogWarning("SystemGroupSnapshot.Instance.Capture() returned null. Make sure you have initialized the SystemGroupSnapshot.Instance and that you are running in play mode.");
-                return;
-            }
-            
-            if (parentElement is null)
-            {
-                Debug.LogWarning("Cannot populate hierarchy. Parent element is null.");
-                return;
-            }
-            
-            foreach (var descriptor in group)
-            {
-                if (descriptor.IsGroup)
-                {
-                    var groupTemplateInstance = _groupTemplate.CloneTree();
-                    groupTemplateInstance.Q<Foldout>("group-foldout").text = descriptor.Name;
-                    parentElement.Add(groupTemplateInstance);
-                    
-                    PopulateHierarchy(descriptor.SubDescriptors, groupTemplateInstance.Q<VisualElement>("group-container"));
-                }
-                else
-                {
-                    var systemTemplateInstance = _systemTemplate.CloneTree();
-                    parentElement.Add(systemTemplateInstance);
-                }
-            }
+            _worldDropdownMenu.choices = new List<string>(SystemGroupSnapshot.Instance.SystemGroupWorlds());
+            PopulateHierarchy();
         }
-        
+
         /// <summary>
-        /// Begin populating the hierarchy, clearing on start
+        /// Begin populating the system group world hierarchy with the selected world
         /// </summary>
-        /// <param name="group"></param>
-        /// <param name="parentElement"></param>
-        private void BeginPopulateHierarchy(IReadOnlyList<Descriptor> group, VisualElement parentElement)
+        private void PopulateHierarchy()
         {
+            if (string.IsNullOrEmpty(_worldDropdownMenu.value)) return;
             _hierarchyRoot.Clear();
-            PopulateHierarchy(group, parentElement);
+            PopulateHierarchyLocal(SystemGroupSnapshot.Instance.Capture(_worldDropdownMenu.value), _hierarchyRoot);
+            return;
+
+            void PopulateHierarchyLocal(IReadOnlyList<Descriptor> group, VisualElement parentElement)
+            {
+                if (group is null)
+                {
+                    Debug.LogWarning("SystemGroupSnapshot.Instance.Capture() returned null. Make sure you have initialized the SystemGroupSnapshot.Instance and that you are running in play mode.");
+                    return;
+                }
+            
+                if (parentElement is null)
+                {
+                    Debug.LogWarning("Cannot populate hierarchy. Parent element is null.");
+                    return;
+                }
+            
+                foreach (var descriptor in group)
+                {
+                    if (descriptor.IsGroup)
+                    {
+                        var groupTemplateInstance = _groupTemplate.CloneTree();
+                        groupTemplateInstance.Q<Foldout>("group-foldout").text = descriptor.Name;
+                        parentElement.Add(groupTemplateInstance);
+                    
+                        PopulateHierarchyLocal(descriptor.SubDescriptors, groupTemplateInstance.Q<VisualElement>("group-container"));
+                    }
+                    else
+                    {
+                        var systemTemplateInstance = _systemTemplate.CloneTree();
+                        parentElement.Add(systemTemplateInstance);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -122,7 +176,7 @@ namespace Editor
         /// </summary>
         private void ClearHierarchy()
         { 
-            // _hierarchyRoot.Clear();
+            _hierarchyRoot.Clear();
         }
     }
 }

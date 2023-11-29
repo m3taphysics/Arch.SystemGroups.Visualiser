@@ -1,6 +1,9 @@
 {
     "name": "Unity.com.m3taphysics.Arch.SystemGroups.Visualiser",
-    "references": [],
+    "rootNamespace": "SystemGroups.Visualiser",
+    "references": [
+        "GUID:275e22790c04e9b47a5085d7b0c4432a"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
