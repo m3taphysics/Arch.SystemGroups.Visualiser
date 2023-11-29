@@ -4,17 +4,18 @@ using Arch.Core;
 using Arch.SystemGroups;
 using Arch.SystemGroups.DefaultSystemGroups;
 using Arch.SystemGroups.Descriptors;
-using Editor;
 using Groups;
+using SystemGroups.Visualiser;
 using UnityEngine;
 
 namespace Systems
 {
     public class EntryPoint : MonoBehaviour
     {
-        private SystemGroupWorld _world = null;
+        private SystemGroupWorld _world1 = null;
+        private SystemGroupWorld _world2 = null;
 
-        private void Start()
+        private ArchSystemsWorldBuilder<World> CreateWorldByName(string name)
         {
             var worldBuilder = new ArchSystemsWorldBuilder<World>(World.Create());
             
@@ -34,12 +35,15 @@ namespace Systems
             SystemInCustomGroupSystem.InjectToWorld(ref worldBuilder);
             SystemInCustomGroupSystem1.InjectToWorld(ref worldBuilder);
             SystemInCustomGroupSystem2.InjectToWorld(ref worldBuilder);
-            
-            
-            
-            _world = worldBuilder.Finish();
-            
-            SystemGroupSnapshot.Instance.Initialize(_world);
+            return worldBuilder;
+        }
+        
+        private void Start()
+        {
+            SystemGroupSnapshot.Instance.Register("world1", CreateWorldByName("world1").Finish());
+            SystemGroupSnapshot.Instance.Register("world2", CreateWorldByName("world2").Finish());
+            SystemGroupSnapshot.Instance.Register("world3", CreateWorldByName("world3").Finish());
+            SystemGroupSnapshot.Instance.Register("world4", CreateWorldByName("world4").Finish());
         }
     }
 }
