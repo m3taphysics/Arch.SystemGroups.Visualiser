@@ -165,6 +165,7 @@ namespace SystemGroups.Visualiser.Editor
                     else
                     {
                         var systemTemplateInstance = _systemTemplate.CloneTree();
+                        systemTemplateInstance.Q<Label>("system-label").text = descriptor.Name;
                         parentElement.Add(systemTemplateInstance);
                     }
                 }

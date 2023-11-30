@@ -12,9 +12,6 @@ namespace Systems
 {
     public class EntryPoint : MonoBehaviour
     {
-        private SystemGroupWorld _world1 = null;
-        private SystemGroupWorld _world2 = null;
-
         private ArchSystemsWorldBuilder<World> CreateWorldByName(string name)
         {
             var worldBuilder = new ArchSystemsWorldBuilder<World>(World.Create());
