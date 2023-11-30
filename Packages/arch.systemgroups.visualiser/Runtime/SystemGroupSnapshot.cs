@@ -32,9 +32,18 @@ namespace SystemGroups.Visualiser
         [Conditional("UNITY_EDITOR")]
         public void Register(string name, SystemGroupWorld systemGroupWorld)
         {
+            if (!_worldReverseMap.TryAdd(systemGroupWorld, name))
+            {
+                throw new ArgumentException("Cannot add the same SystemGroupWorld twice");
+            }
+            
+            if (!_world.TryAdd(name, systemGroupWorld))
+            {
+                _worldReverseMap.Remove(systemGroupWorld);
+                throw new ArgumentException("Cannot add the same SystemGroupWorld twice");
+            }
+            
             _systemGroupWorldNames.Add(name);
-            _worldReverseMap.Add(systemGroupWorld, name);
-            _world.Add(name, systemGroupWorld);
             OnSystemGroupWorldChanged?.Invoke();
         }
         
@@ -47,11 +56,11 @@ namespace SystemGroups.Visualiser
         [Conditional("UNITY_EDITOR")]
         public void Unregister(SystemGroupWorld systemGroupWorld)
         {
-            var name = _worldReverseMap[systemGroupWorld];
+            if (!_worldReverseMap.TryGetValue(systemGroupWorld, out var name)) return;
             _systemGroupWorldNames.Remove(name);
             _world.Remove(name);
             OnSystemGroupWorldChanged?.Invoke();
-;        }
+        }
         
         /// <summary>
         /// Get a list of worlds by name currently registered
