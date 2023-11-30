@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Arch.SystemGroups;
 using Arch.SystemGroups.Descriptors;
 using JetBrains.Annotations;
@@ -28,6 +29,7 @@ namespace SystemGroups.Visualiser
         /// <param name="name"></param>
         /// <param name="systemGroupWorld"></param>
         [UsedImplicitly]
+        [Conditional("UNITY_EDITOR")]
         public void Register(string name, SystemGroupWorld systemGroupWorld)
         {
             _systemGroupWorldNames.Add(name);
@@ -42,6 +44,7 @@ namespace SystemGroups.Visualiser
         /// <param name="name"></param>
         /// <param name="systemGroupWorld"></param>
         [UsedImplicitly]
+        [Conditional("UNITY_EDITOR")]
         public void Unregister(SystemGroupWorld systemGroupWorld)
         {
             var name = _worldReverseMap[systemGroupWorld];
