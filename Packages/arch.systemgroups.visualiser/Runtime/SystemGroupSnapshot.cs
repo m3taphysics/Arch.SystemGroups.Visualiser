@@ -19,6 +19,7 @@ namespace SystemGroups.Visualiser
         public Action OnSystemGroupWorldChanged;
         
         private readonly Dictionary<string, SystemGroupWorld> _world = new();
+        private readonly Dictionary<SystemGroupWorld, string> _worldReverseMap = new();
         private readonly List<string> _systemGroupWorldNames = new();
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace SystemGroups.Visualiser
         public void Register(string name, SystemGroupWorld systemGroupWorld)
         {
             _systemGroupWorldNames.Add(name);
+            _worldReverseMap.Add(systemGroupWorld, name);
             _world.Add(name, systemGroupWorld);
             OnSystemGroupWorldChanged?.Invoke();
         }
@@ -40,8 +42,9 @@ namespace SystemGroups.Visualiser
         /// <param name="name"></param>
         /// <param name="systemGroupWorld"></param>
         [UsedImplicitly]
-        public void Unregister(string name, SystemGroupWorld systemGroupWorld)
+        public void Unregister(SystemGroupWorld systemGroupWorld)
         {
+            var name = _worldReverseMap[systemGroupWorld];
             _systemGroupWorldNames.Remove(name);
             _world.Remove(name);
             OnSystemGroupWorldChanged?.Invoke();
