@@ -1,7 +1,7 @@
 {
   "name": "arch.systemgroups.visualiser",
   "displayName": "Arch.SystemGroups.Visualiser",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "unity": "2022.3",
   "description": "Visualises Arch.SystemGroups system dependencies",
   "keywords": [
