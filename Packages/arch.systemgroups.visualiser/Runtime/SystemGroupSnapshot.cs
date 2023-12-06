@@ -57,6 +57,7 @@ namespace SystemGroups.Visualiser
         public void Unregister(SystemGroupWorld systemGroupWorld)
         {
             if (!_worldReverseMap.TryGetValue(systemGroupWorld, out var name)) return;
+            _worldReverseMap.Remove(systemGroupWorld);
             _systemGroupWorldNames.Remove(name);
             _world.Remove(name);
             OnSystemGroupWorldChanged?.Invoke();
