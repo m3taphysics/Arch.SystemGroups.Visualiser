@@ -3,7 +3,7 @@
     text-align: center;
     margin: 5px;
     padding: 5px;
-    background-color: azure; /* Light yellow background for systems */
+    background-color: var(--unity-colors-button-background-hover); 
     border: 1px solid #000000;
     border-radius: 10px;
     overflow: hidden;
