@@ -1,5 +1,5 @@
 ﻿.group-template {
-    background-color: lightgray; 
+    background-color: var(--unity-colors-dropdown-background); 
     border: 1px solid darkgray;
     border-width: 1px;
     border-color: darkgray;
@@ -12,4 +12,5 @@
 .group-foldout {
     font-size: 20px;
     font-weight: bolder;
+    color: var(--unity-colors-dropdown-text);
 }
