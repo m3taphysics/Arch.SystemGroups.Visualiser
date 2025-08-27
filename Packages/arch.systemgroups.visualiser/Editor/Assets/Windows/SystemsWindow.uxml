@@ -5,8 +5,7 @@
     <ui:MultiColumnTreeView name="systems-tree" sorting-enabled="true" show-border="true" class="systems-tree">
         <ui:Columns>
             <ui:Column name="name" title="Systems" width="320" stretch="true" is-primary="true" />
-            <ui:Column name="entityCount" title="Entity Count" width="100" />
-            <ui:Column name="time" title="Time (ms)" width="90" />
+            <ui:Column name="throttlingEnabled" title="Throttled" width="100" />
         </ui:Columns>
     </ui:MultiColumnTreeView>
     <ui:Button name="enter-play-mode" text="Enter Play Mode" parse-escape-sequences="true" display-tooltip-when-elided="true" />

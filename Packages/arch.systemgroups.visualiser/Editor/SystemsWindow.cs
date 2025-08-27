@@ -183,6 +183,27 @@ namespace SystemGroups.Visualiser.Editor
                 icon.EnableInClassList("system", node.IsSystem);
             };
             
+            var throttledColumn = _multiColumnTreeView.columns.First(c => c.name == "throttlingEnabled");
+            throttledColumn.makeCell = () => _rowTemplate.CloneTree();
+            throttledColumn.bindCell = (element, rowIndex) =>
+            {
+                var node = _multiColumnTreeView.GetItemDataForIndex<Descriptor>(rowIndex);
+                var icon = element.Q<Image>("icon");
+                var label = element.Q<Label>("name");
+
+                if (node.IsGroup)
+                {
+                    label.text = String.Empty;
+                }
+                else
+                {
+                    label.text = node.ThrottlingEnabled ? "Enabled" : "Disabled";    
+                }
+                
+                icon.EnableInClassList("group", false);
+                icon.EnableInClassList("system", false);
+            };
+            
             _multiColumnTreeView.SetRootItems(rootDescriptor);
             _multiColumnTreeView.Rebuild();
         }
