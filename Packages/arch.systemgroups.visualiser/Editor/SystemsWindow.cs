@@ -18,6 +18,8 @@ namespace SystemGroups.Visualiser.Editor
         private Button _enterPlayMode;
         private ScrollView _hierarchyRootScroll;
 
+        private EventCallback<ChangeEvent<string>> _filterCallback;
+
         [MenuItem("Arch/View/Systems")]
         public static void ShowWindow()
         {
@@ -35,15 +37,6 @@ namespace SystemGroups.Visualiser.Editor
             HideAndClearTree();
         }
         
-        /// <summary>
-        /// Invoked when the window is disabled
-        /// </summary>
-        private void OnDisable()
-        { 
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            HideAndClearTree();
-        }
-
         private void ShowAndPopulateTree()
         {
             _worldDropdownMenu.SetEnabled(true);
@@ -51,6 +44,8 @@ namespace SystemGroups.Visualiser.Editor
             _enterPlayMode.visible = false;
             
             _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
+
+            _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
             
             _worldDropdownMenu.RegisterValueChangedCallback(OnSystemGroupWorldValueChanged);
             SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged += OnSystemGroupWorldChanged;
@@ -67,6 +62,8 @@ namespace SystemGroups.Visualiser.Editor
 
             _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
             _enterPlayMode.clicked += EditorApplication.EnterPlaymode;
+            
+            _systemFilterMenu.UnregisterValueChangedCallback(_filterCallback);
             
             _worldDropdownMenu.UnregisterValueChangedCallback(OnSystemGroupWorldValueChanged);
             SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged -= OnSystemGroupWorldChanged;
@@ -90,12 +87,29 @@ namespace SystemGroups.Visualiser.Editor
                 HideAndClearTree();
             }
         }
+        
+        /// <summary>
+        /// Invoked when the window is disabled
+        /// </summary>
+        private void OnDisable()
+        { 
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            HideAndClearTree();
+        }
+
 
         /// <summary>
         /// Invoked when the window is enabled
         /// </summary>
         private void OnEnable()
         {
+            _filterCallback = (evt) =>
+            {
+                if (evt.newValue.Length <= 0) return;
+                PopulateHierarchy();
+                _multiColumnTreeView.ExpandAll();
+            };
+            
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Windows/SystemsWindow.uxml");
             _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Controls/RowTemplate.uxml");
             
@@ -107,6 +121,8 @@ namespace SystemGroups.Visualiser.Editor
             _worldDropdownMenu = rootVisualElement.Q<DropdownField>("world-dropdown");
             _systemFilterMenu  = rootVisualElement.Q<TextField>("systems-filter");
             _enterPlayMode = rootVisualElement.Q<Button>("enter-play-mode");
+
+            _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
             
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             
@@ -150,7 +166,7 @@ namespace SystemGroups.Visualiser.Editor
             _multiColumnTreeView.SetRootItems(Array.Empty<TreeViewItemData<Descriptor>>());
 
             var rootDescriptor = new List<TreeViewItemData<Descriptor>>();
-            GenerateSystemData(rootDescriptor);
+            GenerateSystemData(rootDescriptor, _systemFilterMenu.value);
 
             // Setup System/Group Name Column
             var nameColumn = _multiColumnTreeView.columns.First(c => c.name == "name");
@@ -177,7 +193,7 @@ namespace SystemGroups.Visualiser.Editor
         /// <param name="idx"></param>
         /// <param name="parent"></param>
         /// <returns></returns>
-        private void GenerateSystemData(IList<TreeViewItemData<Descriptor>> parent)
+        private void GenerateSystemData(IList<TreeViewItemData<Descriptor>> parent, string filter)
         {
             void _generateSystemData(IReadOnlyList<Descriptor> descriptors, IList<TreeViewItemData<Descriptor>> parent)
             {
@@ -192,6 +208,7 @@ namespace SystemGroups.Visualiser.Editor
                     }
                     else if(descriptor.IsSystem)
                     {
+                        if(!String.IsNullOrEmpty(filter) && !descriptor.Name.Contains(filter, StringComparison.OrdinalIgnoreCase)) continue;
                         var tvi = new TreeViewItemData<Descriptor>(descriptor.Name.GetHashCode(), descriptor);
                         parent.Add(tvi);                    
                     }
