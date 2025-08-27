@@ -1,0 +1,21 @@
+.row-icon {
+    width: 16px;
+    height: 16px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.row-icon.group {
+    background-image: url('project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Icons/folder.png?fileID=2800000&guid=6e0e05ecce7639f46a1a21c39aa04a6d&type=3#folder');
+}
+
+.row-icon.system {
+    background-image: url('project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Icons/system.png');
+}
+
+.row-name.group { 
+    font-weight: 600; 
+}
+
+.row-name.system  {
+    font-weight: 200;
+}
