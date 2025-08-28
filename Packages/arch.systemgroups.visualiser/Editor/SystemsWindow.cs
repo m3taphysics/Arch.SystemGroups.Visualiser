@@ -28,31 +28,30 @@ namespace SystemGroups.Visualiser.Editor
             window.titleContent.image = AssetDatabase.LoadAssetAtPath<Texture>($"{PACKAGE_PATH}/Icons/systems.png");
         }
 
-        /// <summary>
-        /// Invoked when the window is destroyed.
-        /// </summary>
         public void OnDestroy()
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            
+            UnregisterCallbacks();
             HideAndClearTree();
         }
-        
+
+        private void OnDisable()
+        {
+            UnregisterCallbacks();
+            HideAndClearTree();
+        }
+
         private void ShowAndPopulateTree()
         {
             _worldDropdownMenu.SetEnabled(true);
             _systemFilterMenu.SetEnabled(true);
-            _enterPlayMode.visible = false;
             
-            _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
-
-            _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
+            EnablePlayModeButton(false);
             
-            _worldDropdownMenu.RegisterValueChangedCallback(OnSystemGroupWorldValueChanged);
-            SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged += OnSystemGroupWorldChanged;
-            
+            RegisterCallbacks();
             OnSystemGroupWorldChanged();
         }
-
 
         private void HideAndClearTree()
         {
@@ -60,15 +59,43 @@ namespace SystemGroups.Visualiser.Editor
             _systemFilterMenu.SetEnabled(false);
             _enterPlayMode.visible = true;
 
-            _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
-            _enterPlayMode.clicked += EditorApplication.EnterPlaymode;
+            EnablePlayModeButton(true);
             
-            _systemFilterMenu.UnregisterValueChangedCallback(_filterCallback);
-            
-            _worldDropdownMenu.UnregisterValueChangedCallback(OnSystemGroupWorldValueChanged);
-            SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged -= OnSystemGroupWorldChanged;
-            
+            UnregisterCallbacks();
             ClearHierarchy();
+        }
+
+        private void RegisterCallbacks()
+        {
+            _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
+            _worldDropdownMenu.RegisterValueChangedCallback(OnSystemGroupWorldValueChanged);
+            
+            SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged += OnSystemGroupWorldChanged;
+        }
+
+        private void UnregisterCallbacks()
+        {
+            _systemFilterMenu.UnregisterValueChangedCallback(_filterCallback);
+            _worldDropdownMenu.UnregisterValueChangedCallback(OnSystemGroupWorldValueChanged);
+            
+            SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged -= OnSystemGroupWorldChanged;
+        }
+
+        private void EnablePlayModeButton(bool enable)
+        {
+            if (enable)
+            {
+                _enterPlayMode.visible = true;
+                _enterPlayMode.SetEnabled(true);
+                _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
+                _enterPlayMode.clicked += EditorApplication.EnterPlaymode;
+            }
+            else
+            {
+                _enterPlayMode.visible = false;
+                _enterPlayMode.SetEnabled(false);
+                _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
+            }
         }
 
         /// <summary>
@@ -81,20 +108,36 @@ namespace SystemGroups.Visualiser.Editor
             {
                 ShowAndPopulateTree();
             }
-                
+
             else if (stateChange == PlayModeStateChange.ExitingPlayMode)
             {
                 HideAndClearTree();
             }
         }
-        
-        /// <summary>
-        /// Invoked when the window is disabled
-        /// </summary>
-        private void OnDisable()
-        { 
+
+        private void Setup()
+        {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            HideAndClearTree();
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            
+            _filterCallback = (evt) =>
+            {
+                PopulateHierarchy();
+                _multiColumnTreeView.ExpandAll();
+            };
+
+            var visualTree =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Windows/SystemsWindow.uxml");
+            _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Controls/RowTemplate.uxml");
+
+            var root = visualTree.CloneTree();
+
+            rootVisualElement.Add(root);
+
+            _multiColumnTreeView = rootVisualElement.Q<MultiColumnTreeView>("systems-tree");
+            _worldDropdownMenu = rootVisualElement.Q<DropdownField>("world-dropdown");
+            _systemFilterMenu = rootVisualElement.Q<TextField>("systems-filter");
+            _enterPlayMode = rootVisualElement.Q<Button>("enter-play-mode");
         }
 
 
@@ -102,29 +145,8 @@ namespace SystemGroups.Visualiser.Editor
         /// Invoked when the window is enabled
         /// </summary>
         private void OnEnable()
-        {
-            _filterCallback = (evt) =>
-            {
-                if (evt.newValue.Length <= 0) return;
-                PopulateHierarchy();
-                _multiColumnTreeView.ExpandAll();
-            };
-            
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Windows/SystemsWindow.uxml");
-            _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Controls/RowTemplate.uxml");
-            
-            var root = visualTree.CloneTree();
-            
-            rootVisualElement.Add(root);
-            
-            _multiColumnTreeView = rootVisualElement.Q<MultiColumnTreeView>("systems-tree");
-            _worldDropdownMenu = rootVisualElement.Q<DropdownField>("world-dropdown");
-            _systemFilterMenu  = rootVisualElement.Q<TextField>("systems-filter");
-            _enterPlayMode = rootVisualElement.Q<Button>("enter-play-mode");
-
-            _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
-            
-            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        { 
+            Setup();
             
             if (Application.isPlaying)
             {
