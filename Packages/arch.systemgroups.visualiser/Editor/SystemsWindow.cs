@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Arch.SystemGroups;
+using SystemGroups.Visualiser.Editor.Utility;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,13 +11,14 @@ namespace SystemGroups.Visualiser.Editor
 {
     public class SystemsWindow : EditorWindow
     {
-        private static readonly string PACKAGE_PATH = "Packages/arch.systemgroups.visualiser/Editor/Assets";
+        private static readonly string kPackagePath = "Packages/arch.systemgroups.visualiser/Editor/Assets";
         private MultiColumnTreeView _multiColumnTreeView;
         private VisualTreeAsset _rowTemplate;
         private DropdownField _worldDropdownMenu;
         private TextField _systemFilterMenu;
         private Button _enterPlayMode;
         private ScrollView _hierarchyRootScroll;
+        private Debouncer _debouncer;
 
         private EventCallback<ChangeEvent<string>> _filterCallback;
 
@@ -25,7 +27,7 @@ namespace SystemGroups.Visualiser.Editor
         {
             var window = GetWindow<SystemsWindow>();
             window.titleContent = new GUIContent("Systems");
-            window.titleContent.image = AssetDatabase.LoadAssetAtPath<Texture>($"{PACKAGE_PATH}/Icons/systems.png");
+            window.titleContent.image = AssetDatabase.LoadAssetAtPath<Texture>($"{kPackagePath}/Icons/systems.png");
         }
 
         public void OnDestroy()
@@ -67,33 +69,29 @@ namespace SystemGroups.Visualiser.Editor
 
         private void RegisterCallbacks()
         {
-            _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
-            _worldDropdownMenu.RegisterValueChangedCallback(OnSystemGroupWorldValueChanged);
-            
+            if (_systemFilterMenu != null) _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
+            if (_worldDropdownMenu != null) _worldDropdownMenu.RegisterValueChangedCallback(OnSystemGroupWorldValueChanged);
             SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged += OnSystemGroupWorldChanged;
         }
 
         private void UnregisterCallbacks()
         {
-            _systemFilterMenu.UnregisterValueChangedCallback(_filterCallback);
-            _worldDropdownMenu.UnregisterValueChangedCallback(OnSystemGroupWorldValueChanged);
-            
+            if (_systemFilterMenu != null) _systemFilterMenu.UnregisterValueChangedCallback(_filterCallback);
+            if (_worldDropdownMenu != null) _worldDropdownMenu.UnregisterValueChangedCallback(OnSystemGroupWorldValueChanged);
             SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged -= OnSystemGroupWorldChanged;
         }
-
+        
         private void EnablePlayModeButton(bool enable)
         {
             if (enable)
             {
                 _enterPlayMode.visible = true;
-                _enterPlayMode.SetEnabled(true);
                 _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
                 _enterPlayMode.clicked += EditorApplication.EnterPlaymode;
             }
             else
             {
                 _enterPlayMode.visible = false;
-                _enterPlayMode.SetEnabled(false);
                 _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
             }
         }
@@ -117,18 +115,23 @@ namespace SystemGroups.Visualiser.Editor
 
         private void Setup()
         {
+            _debouncer = new Debouncer();
+            
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             
             _filterCallback = (evt) =>
             {
-                PopulateHierarchy();
-                _multiColumnTreeView.ExpandAll();
+                _debouncer.Debounce(() =>
+                {
+                    PopulateHierarchy();
+                    _multiColumnTreeView.ExpandAll(); 
+                });
             };
 
             var visualTree =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Windows/SystemsWindow.uxml");
-            _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PACKAGE_PATH}/Controls/RowTemplate.uxml");
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{kPackagePath}/Windows/SystemsWindow.uxml");
+            _rowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{kPackagePath}/Controls/RowTemplate.uxml");
 
             var root = visualTree.CloneTree();
 
@@ -191,21 +194,20 @@ namespace SystemGroups.Visualiser.Editor
             GenerateSystemData(rootDescriptor, _systemFilterMenu.value);
 
             // Setup System/Group Name Column
-            var nameColumn = _multiColumnTreeView.columns.First(c => c.name == "name");
-            nameColumn.makeCell = () => _rowTemplate.CloneTree();
-            nameColumn.bindCell = (element, rowIndex) =>
-            {
-                var node = _multiColumnTreeView.GetItemDataForIndex<Descriptor>(rowIndex);
-                var icon = element.Q<Image>("icon");
-                var label = element.Q<Label>("name");
-                
-                label.text = node.Name;
-                
-                icon.EnableInClassList("group", node.IsGroup);
-                icon.EnableInClassList("system", node.IsSystem);
-            };
+
+            SetupNameColumn();
+            SetupThrottledColumn();
             
-            var throttledColumn = _multiColumnTreeView.columns.First(c => c.name == "throttlingEnabled");
+            _multiColumnTreeView.SetRootItems(rootDescriptor);
+            _multiColumnTreeView.Rebuild();
+        }
+
+        private void SetupThrottledColumn()
+        {
+            const string COLUMN_NAME = "throttled-column";  
+            var throttledColumn = _multiColumnTreeView.columns.FirstOrDefault(c => c.name == COLUMN_NAME);
+            if(throttledColumn == null) return;
+            
             throttledColumn.makeCell = () => _rowTemplate.CloneTree();
             throttledColumn.bindCell = (element, rowIndex) =>
             {
@@ -225,9 +227,26 @@ namespace SystemGroups.Visualiser.Editor
                 icon.EnableInClassList("group", false);
                 icon.EnableInClassList("system", false);
             };
+        }
+
+        private void SetupNameColumn()
+        {
+            const string COLUMN_NAME = "name";
+            var nameColumn = _multiColumnTreeView.columns.FirstOrDefault(c => c.name == COLUMN_NAME);
+            if (nameColumn == null) return;
             
-            _multiColumnTreeView.SetRootItems(rootDescriptor);
-            _multiColumnTreeView.Rebuild();
+            nameColumn.makeCell = () => _rowTemplate.CloneTree();
+            nameColumn.bindCell = (element, rowIndex) =>
+            {
+                var node = _multiColumnTreeView.GetItemDataForIndex<Descriptor>(rowIndex);
+                var icon = element.Q<Image>("icon");
+                var label = element.Q<Label>("name");
+                
+                label.text = node.Name;
+                
+                icon.EnableInClassList("group", node.IsGroup);
+                icon.EnableInClassList("system", node.IsSystem);
+            };
         }
 
         /// <summary>
@@ -238,7 +257,7 @@ namespace SystemGroups.Visualiser.Editor
         /// <returns></returns>
         private void GenerateSystemData(IList<TreeViewItemData<Descriptor>> parent, string filter)
         {
-            void _generateSystemData(IReadOnlyList<Descriptor> descriptors, IList<TreeViewItemData<Descriptor>> parent)
+            void Recurse(IReadOnlyList<Descriptor> descriptors, IList<TreeViewItemData<Descriptor>> parent)
             {
                 foreach (var descriptor in descriptors)
                 {
@@ -247,7 +266,7 @@ namespace SystemGroups.Visualiser.Editor
                         var children = new List<TreeViewItemData<Descriptor>>();
                         var tvi = new TreeViewItemData<Descriptor>(descriptor.Name.GetHashCode(), descriptor, children);
                         parent.Add(tvi);
-                        _generateSystemData(descriptor.SubDescriptors, children);
+                        Recurse(descriptor.SubDescriptors, children);
                     }
                     else if(descriptor.IsSystem)
                     {
@@ -261,7 +280,7 @@ namespace SystemGroups.Visualiser.Editor
             var descriptors = SystemGroupSnapshot.Instance.Capture(_worldDropdownMenu.value);
             if (descriptors != null)
             {
-                _generateSystemData(descriptors, parent);   
+                Recurse(descriptors, parent);   
             }
         }
 
