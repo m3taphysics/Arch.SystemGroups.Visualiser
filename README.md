@@ -8,7 +8,7 @@ The project provides a package to allow visualisation of the dependency tree of 
 
 ## Installation
 - Package can be added as a github dependency: ```https://github.com/m3taphysics/Arch.SystemGroups.Visualiser.git?path=/Packages/Arch.Systemgroups.Visualiser```. [See Installing a package from a github dependency](https://docs.unity3d.com/Manual/upm-ui-giturl.html)
-- Once installed Visualiser can be found ```Arch -> View -> Visualiser" ```
+- Once installed Visualiser can be found ```Arch -> View -> Systems" ```
 
 ## Setup
 For information on set up of Unity system groups please refer to [Arch.SystemGroups](https://github.com/mikhail-dcl/Arch.SystemGroups).

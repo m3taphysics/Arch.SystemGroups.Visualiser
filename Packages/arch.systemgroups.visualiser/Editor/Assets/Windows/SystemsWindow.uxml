@@ -4,8 +4,8 @@
     <ui:TextField label="Filter" index="-1" name="systems-filter"/>
     <ui:MultiColumnTreeView name="systems-tree" sorting-enabled="true" show-border="true" class="systems-tree">
         <ui:Columns>
-            <ui:Column name="name" title="Systems" width="320" stretch="true" is-primary="true" />
-            <ui:Column name="throttlingEnabled" title="Throttled" width="100" />
+            <ui:Column name="name-column" title="Systems" width="320" stretch="true" is-primary="true" />
+            <ui:Column name="throttled-column" title="Throttled" width="100" />
         </ui:Columns>
     </ui:MultiColumnTreeView>
     <ui:Button name="enter-play-mode" text="Enter Play Mode" parse-escape-sequences="true" display-tooltip-when-elided="true" />
