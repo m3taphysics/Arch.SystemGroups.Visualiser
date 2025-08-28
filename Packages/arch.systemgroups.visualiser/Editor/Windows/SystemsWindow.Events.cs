@@ -11,7 +11,15 @@ namespace SystemGroups.Visualiser.Editor.Windows
         {
             if (_multiColumnTreeView.selectedItem != null)
             {
-                _lastSelectionId = ((Descriptor?)_multiColumnTreeView.selectedItem).Value.Name.GetHashCode();
+                var descriptor = ((Descriptor)_multiColumnTreeView.selectedItem);
+                if (descriptor.Name != null)
+                {
+                    _lastSelectionId = descriptor.Name.GetHashCode();    
+                }
+                else
+                {
+                    _lastSelectionId = -1;
+                }
             }
             else
             {
