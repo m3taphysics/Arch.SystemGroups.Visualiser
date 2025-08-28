@@ -242,7 +242,9 @@ namespace SystemGroups.Visualiser.Editor
                 var icon = element.Q<Image>("icon");
                 var label = element.Q<Label>("name");
                 
-                label.text = node.Name;
+                label.enableRichText = true;
+                var query = _systemFilterMenu?.value ?? String.Empty;
+                label.text = RichText.HighlightMatch(node.Name, query);
                 
                 icon.EnableInClassList("group", node.IsGroup);
                 icon.EnableInClassList("system", node.IsSystem);
