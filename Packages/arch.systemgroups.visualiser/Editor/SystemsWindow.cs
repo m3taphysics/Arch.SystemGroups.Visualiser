@@ -72,6 +72,8 @@ namespace SystemGroups.Visualiser.Editor
             if (_systemFilterMenu != null) _systemFilterMenu.RegisterValueChangedCallback(_filterCallback);
             if (_worldDropdownMenu != null) _worldDropdownMenu.RegisterValueChangedCallback(OnSystemGroupWorldValueChanged);
             SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged += OnSystemGroupWorldChanged;
+            
+            _multiColumnTreeView.RegisterCallback<ContextClickEvent>(ExpandMenu);
         }
 
         private void UnregisterCallbacks()
@@ -79,6 +81,8 @@ namespace SystemGroups.Visualiser.Editor
             if (_systemFilterMenu != null) _systemFilterMenu.UnregisterValueChangedCallback(_filterCallback);
             if (_worldDropdownMenu != null) _worldDropdownMenu.UnregisterValueChangedCallback(OnSystemGroupWorldValueChanged);
             SystemGroupSnapshot.Instance.OnSystemGroupWorldChanged -= OnSystemGroupWorldChanged;
+            
+            _multiColumnTreeView.UnregisterCallback<ContextClickEvent>(ExpandMenu);
         }
         
         private void EnablePlayModeButton(bool enable)
@@ -94,6 +98,14 @@ namespace SystemGroups.Visualiser.Editor
                 _enterPlayMode.visible = false;
                 _enterPlayMode.clicked -= EditorApplication.EnterPlaymode;
             }
+        }
+
+        private void ExpandMenu(ContextClickEvent evt)
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Expand All"), false, () => _multiColumnTreeView.ExpandAll());
+            menu.AddItem(new GUIContent("Collapse All"), false, () => _multiColumnTreeView.CollapseAll());
+            menu.ShowAsContext();
         }
 
         /// <summary>
