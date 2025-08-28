@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Packages/arch.systemgroups.visualiser/Editor/Assets/Styles/SystemWindow.uss?fileID=7433441132597879392&amp;guid=4facb862eeab27c4ea00349c93793a28&amp;type=3#SystemWindow" />
+    <ui:VisualElement class="row" style="flex-direction: row;">
+        <ui:Image name="icon" class="row-icon" />
+        <ui:Label name="name" class="row-name" />
+    </ui:VisualElement>
+</ui:UXML>
